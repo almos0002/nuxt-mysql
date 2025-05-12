@@ -5,13 +5,11 @@ import { useDrizzle } from '../utils/drizzle'
 export default defineNitroPlugin(async () => {
   if (!import.meta.dev) return
 
-  onHubReady(async () => {
-    await migrate(await useDrizzle(), { migrationsFolder: 'server/database/migrations' })
-      .then(() => {
-        consola.success('Database migrations done')
-      })
-      .catch((err) => {
-        consola.error('Database migrations failed', err)
-      })
-  })
+  try {
+    const db = await useDrizzle()
+    await migrate(db, { migrationsFolder: 'server/database/migrations' })
+    consola.success('Database migrations applied successfully')
+  } catch (error) {
+    consola.error('Failed to apply database migrations:', error)
+  }
 })
